@@ -6,9 +6,8 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["https://super-pacart.netlify.app",
-    "https://superpacart.fly.dev",],
-    methods: ["GET", "POST", "DELETE", "PUT"]
+    origin: ["https://super-pacart.netlify.app", "heroku-builder-db.fly.dev"],
+    methods: ["GET", "POST", "DELETE", "PUT"],
   },
 });
 
@@ -30,22 +29,26 @@ io.on("connection", (socket) => {
 
   socket.on("send_team", (data) => {
     const { jsonTeam, jsonKart } = data;
-    io.in(data.gameId).emit("receive_team_added", {jsonTeam, jsonKart});
+    io.in(data.gameId).emit("receive_team_added", { jsonTeam, jsonKart });
   });
 
   socket.on("game_update", (data) => {
     const { gameId, tempColor, tempScore, jsonKart } = data;
-    socket.to(`${gameId}`).emit("receive_game_update", {tempColor, jsonKart, tempScore});
+    socket
+      .to(`${gameId}`)
+      .emit("receive_game_update", { tempColor, jsonKart, tempScore });
   });
 
   socket.on("toggle_player_control", (data) => {
-    socket.to(data.tempTeamMate).emit("receive_toggle_player_control", data.jsonTeam);
-  })
+    socket
+      .to(data.tempTeamMate)
+      .emit("receive_toggle_player_control", data.jsonTeam);
+  });
 
   socket.on("remove_pellet", (data) => {
-    const {gameId, i, boolOfGameStatus} = data;
-    socket.to(gameId).emit("pellet_gone", {i, boolOfGameStatus})
-  })
+    const { gameId, i, boolOfGameStatus } = data;
+    socket.to(gameId).emit("pellet_gone", { i, boolOfGameStatus });
+  });
 
   socket.on("disconnect", (reason) => {
     console.log(socket.id + " disconnected");
@@ -55,6 +58,5 @@ io.on("connection", (socket) => {
 server.listen(8080, () =>
   console.log("Server ready at: http://localhost:3000")
 );
-
 
 export default io;
